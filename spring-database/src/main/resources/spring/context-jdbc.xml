@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!--
+		데이터베이스와 연결된 Connection 객체를 제공하는 객체(커넥션풀:Connection Pool객체)를 스프링의 빈으로 등록시킨다.
+		모든 Connection Pool객체는 javax.sql.DataSource 인테페이스를 구현한 객체다.
+		
+		commons-dbcp 라이브러리가 제공하는 BasicDataSource는 가장 일ㅈ반적으로 많이 사용되는 DataSource 구현체다.
+		*jdbc드라이버클래스명, 데이터베이스접속URL, 사용자명, 비밀번호를 제공해야한다.
+	-->
+	<bean id="basicDataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver"></property>
+		<property name="url"			 value="jdbc:oracle:thin:@localhost:1521:xe"></property>
+		<property name="username"		 value="hr"></property>
+		<property name="password"		 value="zxcv1234"></property>
+	</bean>
+	
+	<!-- 
+		SQL 실행작업을 처리해주는 객체를 스프링의 빈으로 등록시킨다.
+		데이터베이스에 대한 CRUD작업을 처리해주는 객체를 스프링의 빈으로 등록시킨다.
+		
+		spring-jdbc 라이브러리는 JdbcTemplate 클래스를 제공한다.
+		JdbcTemplate클래스는 INSERT, UPDATE, DELETE, SELECT 쿼리문을 간단하게 실핼할 수 잇는 메소드를 제고한다.
+		* 커넥션을 제공하는 ConnectionPool 객체를 제공해야한다.
+	-->	
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="basicDataSoruce"></property>
+	</bean>
+	<!-- 
+		업무로직 구현에 필요한 데이터베이스 작업이 구현된 EmployeeDaoImpl를 스프링의 빈으로 등록시킨다.
+	 -->
+	<bean id="employeeDaoImpl" class="com.sample.dao.EmployeeDaoImpl">
+		<property name="template" ref="jdbcTemplate"></property>
+	</bean>
+	
+	<bean id="jobDaoImpl" class="com.sample.dao.JobDaoImpl">
+		<property name="template" ref="jdbcTemplate"></property>
+	</bean>
+	<!-- 
+		업무로직이 구현된 EmployeeServiceImpl를 스프링의 빈으로 등록시킨다.     
+		* 업무로직 구현에 필요한 데이터베이스 엑세스 작업을 지원하는 EmployeeDaoImpl객체를 제공받아야(의존성 주입받아야)한다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+	 -->
+	<bean id="employeeServiceImpl" class="com.sample.service.EmployeeServiceImpl">
+		<property name="employeeDao" ref="employeeDaoImpl"></property>
+	</bean>
+	
+	<bean id="jobServiceImpl" class="com.sample.service.JobServiceImpl">
+		<property name="jobDao" ref="jobDaoImpl"></property>
+	</bean>
+	
+	
+</beans>
